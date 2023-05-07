@@ -1,38 +1,3 @@
-# import os
-# from flask import Flask, render_template, request, url_for, redirect
-# from flask_sqlalchemy import SQLAlchemy
-
-# from sqlalchemy.sql import func
-
-
-
-
-# basedir = os.path.abspath(os.path.dirname(__file__))
-
-# app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] =\
-#         'sqlite:///' + os.path.join(basedir, 'database.db')
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# db = SQLAlchemy(app)
-
-# db = SQLAlchemy()
-
-
-
-
-# # def create_app():
-# #     """Construct the core application."""
-# #     app = Flask(__name__, instance_relative_config=False)
-# #     app.config.from_object('config.Config')
-
-# #     db.init_app(app)
-
-# #     with app.app_context():
-# #         from . import routes  # Import routes
-# #         db.create_all()  # Create sql tables for our data models
-
-# #         return app
 
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -41,33 +6,13 @@ import os
 from datetime import datetime
 load_dotenv()
 app = Flask(__name__)
-
 # Configure MariaDB connection
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}:{os.getenv('MYSQL_PORT')}/{os.getenv('MYSQL_DATABASE')}"
 
  # Create SQLAlchemy object
 db = SQLAlchemy(app)
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50))
-    apellidoMaterno = db.Column(db.String(50))
-    apellidoPaterno = db.Column(db.String(50))
-    cargo = db.Column(db.String(25))
-    empresa = db.Column(db.String(25))
-    calle = db.Column(db.String(40))
-    numeroExt = db.Column(db.String(10))
-    numeroInt = db.Column(db.String(10))
-    colonia = db.Column(db.String(25))
-    municipio = db.Column(db.String(25))
-    estado = db.Column(db.String(25))
-    codigoPostal = db.Column(db.String(10))
-    telefono = db.Column(db.String(10)) 
-    correoElectronico = db.Column(db.String(256)) 
-    fechaNacimiento = db.Column(db.DateTime) 
-    def __repr__(self):
-        return '<User {}>'.format(self.nombre)
 
+from models import User  # import the User model
 with app.app_context():
     db.create_all()
 
