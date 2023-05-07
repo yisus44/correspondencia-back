@@ -1,0 +1,8 @@
+still dont know what this exactly does but it might be important:
+$ . .venv/bin/activate
+
+Run the database:
+$ sudo docker compose up
+
+Run the app: 
+$ flask --app app run --debug
