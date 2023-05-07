@@ -1,0 +1,16 @@
+Estimado/a {nombre} {apellidoMaterno} {apellidoPaterno}, que tiene {edadCalculada} años de edad,
+
+Nos complace informarle que ha sido seleccionado/a para el puesto de {cargo} en {empresa}.
+
+Por favor, encuentre adjunta información adicional sobre el puesto, incluyendo una copia de su contrato.
+
+Si tiene alguna pregunta o inquietud, no dude en ponerse en contacto con nosotros.
+
+Atentamente,
+Una empresa de contratación de pruebas
+
+Su información de contacto:
+Calle: {calle} {numeroExt} {numeroInt} , {colonia}, {municipio}, {estado}, {codigoPostal}
+Número de teléfono: {telefono}
+Correo electrónico: {correoElectronico}
+Año de nacimiento: {fechaNacimiento}

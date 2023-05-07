@@ -1,7 +1,9 @@
-from flask import Blueprint, jsonify, request
+import os
+from flask import Blueprint, jsonify, request, Response
 from models import User
 from datetime import datetime
 from app import db
+from reportlab.pdfgen import canvas
 user_routes = Blueprint('user_routes', __name__)
 
 @user_routes.route("/users",methods=["GET"])
@@ -54,6 +56,63 @@ def get_user(user_id):
         return jsonify(user_dict)
     else:
         return jsonify({"message": "User not found."}), 404
+
+def generate_user_report(user_dict):
+    # Define the folder path for the output files
+    output_folder_path = "output"
+    # Create the output folder if it doesn't exist
+    if not os.path.exists(output_folder_path):
+        os.mkdir(output_folder_path)
+   
+    # Define the canvas for the PDF
+    c = canvas.Canvas(os.path.join(output_folder_path, f"{user_dict['nombre']}_{user_dict['apellidoMaterno']}_{user_dict['apellidoPaterno']}.pdf"))
+   
+    # Define the template file path and read its contents
+    template_file_path = "template.txt"
+    with open(template_file_path, "r") as template_file:
+        template_content = template_file.read()
+   
+    # Replace placeholders in the template with user data
+    for key, value in user_dict.items():
+        template_content = template_content.replace("{" + key + "}", str(value))
+
+    # Split the template content into lines
+    lines = template_content.split("\n")
+   
+    # Define the starting y-coordinate for the text
+    y = 750
+   
+    # Draw each line of the template on the canvas
+    for line in lines:
+        c.drawString(100, y, line)
+        y -= 20 # Move down by 20 units for each line
+   
+    # Save the PDF
+    c.showPage()
+    c.save()
+
+
+@user_routes.route("/users/invitations", methods=["POST"])
+def get_user_inventations():
+    data = request.get_json()
+    users = data['users']
+    print(users)
+    for user_id in users:
+        user = User.query.get(user_id)
+        if user:
+            # Delete files
+            user_dict = user.__dict__
+            user_dict.pop('_sa_instance_state', None)
+            # Calculate age
+            nacimiento = user_dict["fechaNacimiento"].strftime("%Y-%m-%d")
+            user_dict["fechaNacimiento"]= user_dict["fechaNacimiento"].strftime('%Y-%m-%d')
+            print(user_dict["fechaNacimiento"])
+            edad = 2023 - int(nacimiento[:4])
+            user_dict["edadCalculada"] = edad
+            # Generate reports
+            generate_user_report(user_dict)
+       
+    return jsonify({'message': 'Users processed successfully'})
 
 @user_routes.route('/users/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
