@@ -4,9 +4,13 @@ from models import User
 from datetime import datetime
 from app import db
 from reportlab.pdfgen import canvas
+from flask_cors import cross_origin
+
+
 user_routes = Blueprint('user_routes', __name__)
 
 @user_routes.route("/users",methods=["GET"])
+@cross_origin()
 def fetch_users():
      # Query the database
     data = User.query.all()
@@ -18,9 +22,10 @@ def fetch_users():
     for row in data_dict:
         row.pop('_sa_instance_state', None)
 
-    return str(data_dict)
+    return jsonify(data_dict)
 
 @user_routes.route("/users", methods=["POST"])
+@cross_origin()
 def create_user():
     # Example POST data format: {"nombre": "John", "apellidoMaterno": "Doe", ...}
     data = request.get_json()
@@ -48,6 +53,7 @@ def create_user():
     return jsonify({"user": "User created successfully!"}), 201
 
 @user_routes.route("/users/<int:user_id>", methods=["GET"])
+@cross_origin()
 def get_user(user_id):
     user = User.query.get(user_id)
     if user:
@@ -93,6 +99,7 @@ def generate_user_report(user_dict):
 
 
 @user_routes.route("/users/invitations/<int:user_id>", methods=["GET"])
+@cross_origin()
 def get_user_inventations(user_id):
     user = User.query.get(user_id)
     if user:
@@ -114,6 +121,7 @@ def get_user_inventations(user_id):
     return jsonify({'message': 'User not found'})
 
 @user_routes.route('/users/<int:user_id>', methods=['PUT'])
+@cross_origin()
 def update_user(user_id):
     # Query the database for the user to update
     user = User.query.get(user_id)
@@ -167,6 +175,7 @@ def update_user(user_id):
 
 
 @user_routes.route("/users/<int:user_id>", methods=["DELETE"])
+@cross_origin()
 def delete_user(user_id):
     user = User.query.get(user_id)
     if user:
