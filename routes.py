@@ -100,7 +100,7 @@ def generate_user_report(user_dict):
 
 @user_routes.route("/users/invitations/<int:user_id>", methods=["GET"])
 @cross_origin()
-def get_user_inventations(user_id):
+def get_user_invitations(user_id):
     user = User.query.get(user_id)
     if user:
         # Delete files
