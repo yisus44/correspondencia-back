@@ -29,7 +29,10 @@ def fetch_users():
 def create_user():
     # Example POST data format: {"nombre": "John", "apellidoMaterno": "Doe", ...}
     data = request.get_json()
-    fecha_nacimiento = datetime.strptime(data['fechaNacimiento'], '%Y-%m-%d %H:%M:%S')
+    # replace 'Z' with timezone offset
+    fecha_nacimiento_str = data['fechaNacimiento'].replace('Z', '-05:00')
+    # parse as ISO 8601 formatted string
+    fecha_nacimiento = datetime.fromisoformat(fecha_nacimiento_str)
     new_user = User(
         nombre=data["nombre"],
         apellidoMaterno=data["apellidoMaterno"],
@@ -160,15 +163,14 @@ def update_user(user_id):
     if 'correoElectronico' in request.json:
         user.correoElectronico = request.json['correoElectronico']
     if 'fechaNacimiento' in request.json:
-        fecha_nacimiento = datetime.strptime(request.json['fechaNacimiento'], '%Y-%m-%d %H:%M:%S')
+        # replace 'Z' with timezone offset
+        fecha_nacimiento_str = request.json['fechaNacimiento'].replace('Z', '-05:00')
+        # parse as ISO 8601 formatted string
+        fecha_nacimiento = datetime.fromisoformat(fecha_nacimiento_str)
         user.fechaNacimiento = fecha_nacimiento
-  
+
     # Save the changes to the database
     db.session.commit()
-    print("hola")
-    print("adios")
-    # Return the updated user as JSON
-
     user_dict = user.__dict__
     user_dict.pop('_sa_instance_state', None)
     return jsonify(user_dict)
