@@ -1,6 +1,6 @@
 Estimado/a {nombre} {apellidoMaterno} {apellidoPaterno}, que tiene {edadCalculada} años de edad,
 
-Nos complace informarleque ha sido seleccionado/a 
+Nos complace informarle que ha sido seleccionado/a 
 para el puesto de {cargo} en {empresa}.
 
 Si tiene alguna pregunta o inquietud, no dude en ponerse en contacto con nosotros.
