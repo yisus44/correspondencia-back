@@ -2,10 +2,10 @@ import os
 from flask import Blueprint, jsonify, request, Response, send_file
 from models import User
 from datetime import datetime
-from app import db
+from app import db, mail
 from reportlab.pdfgen import canvas
 from flask_cors import cross_origin
-
+from flask_mail import Message
 
 user_routes = Blueprint('user_routes', __name__)
 
@@ -100,6 +100,29 @@ def generate_user_report(user_dict):
     c.showPage()
     c.save()
 
+@user_routes.route("/users/invitations/mail/<int:user_id>", methods=["GET"])
+@cross_origin()
+def send_user_invitations_to_email(user_id):
+    user = User.query.get(user_id)
+    if user:
+
+        # Delete files
+        user_dict = user.__dict__
+        user_dict.pop('_sa_instance_state', None)
+        # Calculate age
+        nacimiento = user_dict["fechaNacimiento"].strftime("%Y-%m-%d")
+        user_dict["fechaNacimiento"]= user_dict["fechaNacimiento"].strftime('%Y-%m-%d')
+        edad = 2023 - int(nacimiento[:4])
+        user_dict["edadCalculada"] = edad
+        # Generate report
+        generate_user_report(user_dict)
+        
+        # Return the PDF file
+        pdf_file_path = os.path.join("output", f"{user_dict['nombre']}_{user_dict['apellidoMaterno']}_{user_dict['apellidoPaterno']}.pdf")
+
+        return jsonify({'message': 'OK'})
+    
+    return jsonify({'message': 'User not found'})
 
 @user_routes.route("/users/invitations/<int:user_id>", methods=["GET"])
 @cross_origin()
@@ -119,6 +142,11 @@ def get_user_invitations(user_id):
         
         # Return the PDF file
         pdf_file_path = os.path.join("output", f"{user_dict['nombre']}_{user_dict['apellidoMaterno']}_{user_dict['apellidoPaterno']}.pdf")
+        msg = Message('Su resultado',  sender=os.getenv('DEFAULT_MAIL_SENDER'),recipients = ['someone1@gmail.com'])
+        msg.body = "Su resultado"
+        with open(pdf_file_path, "rb") as pdfFile:
+            msg.attach(pdf_file_path, "application/pdf", pdfFile.read())
+        mail.send(msg)
         return send_file(pdf_file_path, download_name=f"{user_dict['nombre']}_{user_dict['apellidoMaterno']}_{user_dict['apellidoPaterno']}.pdf", as_attachment=True)
     
     return jsonify({'message': 'User not found'})

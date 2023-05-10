@@ -1,4 +1,4 @@
-still dont know what this exactly does but it might be important:
+Activate virtuan environement to handle dependecies
 $ . .venv/bin/activate
 
 Run the database:
