@@ -6,6 +6,8 @@ from app import db, mail
 from reportlab.pdfgen import canvas
 from flask_cors import cross_origin
 from flask_mail import Message
+import docx
+from docx.shared import Pt
 
 user_routes = Blueprint('user_routes', __name__)
 
@@ -66,7 +68,7 @@ def get_user(user_id):
     else:
         return jsonify({"message": "User not found."}), 404
 
-def generate_user_report(user_dict):
+def generate_user_report_pdf(user_dict):
     # Define the folder path for the output files
     output_folder_path = "output"
     # Create the output folder if it doesn't exist
@@ -100,6 +102,39 @@ def generate_user_report(user_dict):
     c.showPage()
     c.save()
 
+def generate_user_report_word(user_dict):
+    # Define the folder path for the output files
+    output_folder_path = "output"
+    # Create the output folder if it doesn't exist
+    if not os.path.exists(output_folder_path):
+        os.mkdir(output_folder_path)
+
+    # Define the template file path and read its contents
+    template_file_path = "template.txt"
+    with open(template_file_path, "r") as template_file:
+        template_content = template_file.read()
+
+    # Replace placeholders in the template with user data
+    for key, value in user_dict.items():
+        template_content = template_content.replace("{" + key + "}", str(value))
+
+    # Create a new Word document
+    document = docx.Document()
+
+    # Set the font size for the document
+    font_size = docx.shared.Pt(12)
+    style = document.styles['Normal']
+    font = style.font
+    font.size = font_size
+
+    # Add each line of the template to the Word document
+    for line in template_content.split('\n'):
+        paragraph = document.add_paragraph()
+        paragraph.add_run(line).font.size = font_size
+
+    # Save the Word document
+    document.save(os.path.join(output_folder_path, f"{user_dict['nombre']}_{user_dict['apellidoMaterno']}_{user_dict['apellidoPaterno']}.docx"))
+
 
 @user_routes.route("/users/invitations/<int:user_id>", methods=["GET"])
 @cross_origin()
@@ -115,14 +150,19 @@ def get_user_invitations(user_id):
         edad = 2023 - int(nacimiento[:4])
         user_dict["edadCalculada"] = edad
         # Generate report
-        generate_user_report(user_dict)
+        generate_user_report_pdf(user_dict)
+        generate_user_report_word(user_dict)
         
         # Return the PDF file
         pdf_file_path = os.path.join("output", f"{user_dict['nombre']}_{user_dict['apellidoMaterno']}_{user_dict['apellidoPaterno']}.pdf")
+        word_file_path = os.path.join("output", f"{user_dict['nombre']}_{user_dict['apellidoMaterno']}_{user_dict['apellidoPaterno']}.docx")
+
         msg = Message('Su resultado',  sender=os.getenv('DEFAULT_MAIL_SENDER'),recipients = ['someone1@gmail.com'])
         msg.body = "Su resultado"
         with open(pdf_file_path, "rb") as pdfFile:
             msg.attach(pdf_file_path, "application/pdf", pdfFile.read())
+        with open(word_file_path, "rb") as wordFile:
+            msg.attach(word_file_path, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", wordFile.read())
         mail.send(msg)
         return send_file(pdf_file_path, download_name=f"{user_dict['nombre']}_{user_dict['apellidoMaterno']}_{user_dict['apellidoPaterno']}.pdf", as_attachment=True)
     
