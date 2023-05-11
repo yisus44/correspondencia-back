@@ -157,8 +157,8 @@ def get_user_invitations(user_id):
         pdf_file_path = os.path.join("output", f"{user_dict['nombre']}_{user_dict['apellidoMaterno']}_{user_dict['apellidoPaterno']}.pdf")
         word_file_path = os.path.join("output", f"{user_dict['nombre']}_{user_dict['apellidoMaterno']}_{user_dict['apellidoPaterno']}.docx")
 
-        msg = Message('Su resultado',  sender=os.getenv('DEFAULT_MAIL_SENDER'),recipients = ['someone1@gmail.com'])
-        msg.body = "Su resultado"
+        msg = Message('Su resultado',  sender=os.getenv('DEFAULT_MAIL_SENDER'),recipients = [user_dict["correoElectronico"]])
+        msg.body = "Su invitacion"
         with open(pdf_file_path, "rb") as pdfFile:
             msg.attach(pdf_file_path, "application/pdf", pdfFile.read())
         with open(word_file_path, "rb") as wordFile:
