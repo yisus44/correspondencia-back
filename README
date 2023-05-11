@@ -6,3 +6,7 @@ $ sudo docker compose up
 
 Run the app: 
 $ flask --app app run --debug
+
+Check emails:
+
+open: http://localhost:8025
