@@ -100,29 +100,6 @@ def generate_user_report(user_dict):
     c.showPage()
     c.save()
 
-@user_routes.route("/users/invitations/mail/<int:user_id>", methods=["GET"])
-@cross_origin()
-def send_user_invitations_to_email(user_id):
-    user = User.query.get(user_id)
-    if user:
-
-        # Delete files
-        user_dict = user.__dict__
-        user_dict.pop('_sa_instance_state', None)
-        # Calculate age
-        nacimiento = user_dict["fechaNacimiento"].strftime("%Y-%m-%d")
-        user_dict["fechaNacimiento"]= user_dict["fechaNacimiento"].strftime('%Y-%m-%d')
-        edad = 2023 - int(nacimiento[:4])
-        user_dict["edadCalculada"] = edad
-        # Generate report
-        generate_user_report(user_dict)
-        
-        # Return the PDF file
-        pdf_file_path = os.path.join("output", f"{user_dict['nombre']}_{user_dict['apellidoMaterno']}_{user_dict['apellidoPaterno']}.pdf")
-
-        return jsonify({'message': 'OK'})
-    
-    return jsonify({'message': 'User not found'})
 
 @user_routes.route("/users/invitations/<int:user_id>", methods=["GET"])
 @cross_origin()
